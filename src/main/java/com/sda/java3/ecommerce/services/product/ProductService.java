@@ -19,8 +19,8 @@ public interface ProductService {
 
   List<Product> findAll();
 
-  UUID save(SaveProductRequest request);
+  UUID save(SaveProductRequest request) throws CustomException;
   void delete(UUID uuid);
 
-  void update(UUID id, SaveProductRequest request) throws CustomException;
+  Product update(UUID id, SaveProductRequest request) throws CustomException;
 }

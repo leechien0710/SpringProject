@@ -33,7 +33,13 @@ public class ProductApiController {
 
   @PostMapping
   public ResponseEntity<Object> save(@RequestBody @Valid SaveProductRequest request) {
-    return new ResponseEntity<>(productService.save(request), HttpStatus.CREATED);
+    try {
+      return new ResponseEntity<>(productService.save(request), HttpStatus.CREATED);
+    } catch (CustomException e) {
+      return new ResponseEntity<>(e.getMessageDetail(), HttpStatus.BAD_REQUEST);
+    } catch (Exception e) {
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @DeleteMapping(value = "/{id}")
@@ -46,12 +52,11 @@ public class ProductApiController {
   public ResponseEntity<Object> updateProduct(
       @PathVariable UUID id, @RequestBody SaveProductRequest request) {
     try {
-      productService.update(id, request);
+      return new ResponseEntity<>(productService.update(id, request), HttpStatus.ACCEPTED);
     } catch (CustomException e) {
       return new ResponseEntity<>(e.getMessageDetail(), HttpStatus.BAD_REQUEST);
     } catch (Exception e) {
       return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 }

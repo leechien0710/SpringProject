@@ -66,7 +66,8 @@ public class ProductServiceImpl implements ProductService {
   }
 
   @Override
-  public UUID save(SaveProductRequest request) {
+  public UUID save(SaveProductRequest request) throws CustomException{
+    validate(request);
     return productRepository.save(new Product(request)).getId();
   }
 
@@ -77,11 +78,12 @@ public class ProductServiceImpl implements ProductService {
   }
 
   @Override
-  public void update(UUID id, SaveProductRequest request) throws CustomException {
+  public Product update(UUID id, SaveProductRequest request) throws CustomException {
     Product product =
         productRepository
             .findById(id)
             .orElseThrow(() -> new CustomException(null, "Sản phẩm không tồn tại hoặc đã bị xóa."));
+    validate(request);
     product.setName(request.getName());
     product.setDescription(request.getDescription());
     product.setColor(request.getColor());
@@ -91,7 +93,14 @@ public class ProductServiceImpl implements ProductService {
     product.setSalePrice(request.getSalePrice());
     product.setImage(request.getImage());
     product.setCategoryId(request.getCategoryId());
-    productRepository.save(product);
+    return productRepository.save(product);
+  }
+
+  private void validate(SaveProductRequest request) throws CustomException{
+    Optional<Category> categoryOptional = categoryRepository.findById(request.getCategoryId());
+    if (categoryOptional.isEmpty()){
+      throw new CustomException(null, "Danh mục không tồn tại.");
+    }
   }
 
   @Override
